@@ -1,3 +1,5 @@
+from itertools import product
+
 # x -v
 # y ->
 matrix = [
@@ -51,17 +53,17 @@ m_4 = [
     [0, 9, 0, 0, 0, 0, 8, 0, 0, ],
 ]
 
+
 def solve(a_matrix):
-    for x in range(9):
-        for y in range(9):
-            if a_matrix[x][y] == 0:
-                for num in range(1, 10):
-                    if can_be_in_cell(x, y, num, a_matrix):
-                        a_matrix[x][y] = num
-                        if solve(a_matrix):
-                            return True
-                a_matrix[x][y] = 0
-                return False
+    for x, y in product(range(9), range(9)):
+        if a_matrix[x][y] == 0:
+            for num in range(1, 10):
+                if can_be_in_cell(x, y, num, a_matrix):
+                    a_matrix[x][y] = num
+                    if solve(a_matrix):
+                        return True
+                    a_matrix[x][y] = 0
+            return False
     return True
 
 
@@ -72,40 +74,34 @@ def print_matrix(matrix):
 
 def can_be_in_cell(x, y, num, matrix):
     return (
-            can_be_in_row(x, y, num, matrix)
-            and can_be_in_col(x, y, num, matrix)
-            and can_be_in_square(x, y, num, matrix))
+        can_be_in_row(x, num, matrix)
+        and can_be_in_col(y, num, matrix)
+        and can_be_in_square(x, y, num, matrix))
 
 
-def can_be_in_col(x, y, num, matrix):
+def can_be_in_col(y, num, matrix):
+    return num not in col(y, matrix)
+
+
+def can_be_in_row(x, num, matrix):
+    return num not in matrix[x]
+
+
+def can_be_in_square(x, y, num, matrix):
+    return num not in square_around(x, y, matrix)
+
+
+def col(y, matrix):
     for i in range(9):
-        if i == x:
-            continue
-        if matrix[i][y] == num:
-            return False
-    return True
-
-
-def can_be_in_row(x, y, num, matrix):
-    for i in range(9):
-        if i == y:
-            continue
-        if matrix[x][i] == num:
-            return False
-    return True
+        yield matrix[i][y]
 
 
 def _top_n_bot(num):
     top = num // 3 * 3
     bot = top + 3
-    return top, bot
+    return range(top, bot)
 
 
-def can_be_in_square(x, y, num, matrix):
-    for i in range(*_top_n_bot(x)):
-        for j in range(*_top_n_bot(y)):
-            if i == x and j == y:
-                continue
-            if matrix[i][j] == num:
-                return False
-    return True
+def square_around(x, y, matrix):
+    for i, j in product(_top_n_bot(x), _top_n_bot(y)):
+        yield matrix[i][j]
