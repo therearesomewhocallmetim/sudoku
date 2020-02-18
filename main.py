@@ -55,16 +55,21 @@ m_4 = [
 
 
 def solve(a_matrix):
-    for x, y in product(range(9), range(9)):
-        if a_matrix[x][y] == 0:
-            for num in range(1, 10):
-                if can_be_in_cell(x, y, num, a_matrix):
-                    a_matrix[x][y] = num
-                    if solve(a_matrix):
-                        return True
-                    a_matrix[x][y] = 0
-            return False
+    for x, y in field(matrix):
+        for num in range(1, 10):
+            if can_be_in_cell(x, y, num, a_matrix):
+                a_matrix[x][y] = num
+                if solve(a_matrix):
+                    return True
+                a_matrix[x][y] = 0
+        return False
     return True
+
+
+def field(matrix):
+    for x, y in product(range(9), range(9)):
+        if not matrix[x][y]:
+            yield x, y
 
 
 def print_matrix(matrix):
@@ -97,9 +102,7 @@ def col(y, matrix):
 
 
 def _top_n_bot(num):
-    top = num // 3 * 3
-    bot = top + 3
-    return range(top, bot)
+    return range(top := num // 3 * 3, top+3)
 
 
 def square_around(x, y, matrix):
